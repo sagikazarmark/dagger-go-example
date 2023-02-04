@@ -44,6 +44,8 @@ github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQD
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/sagikazarmark/go-option v0.2.0 h1:jL300SlZswk0x8hSRkCgZqA3W3IgZLN0G8Vh+ZJKr+s=
 github.com/sagikazarmark/go-option v0.2.0/go.mod h1:6s6B/MEhrM7uAgECjt7ZnRlday6jRLLbHQKoZRdZDiY=
+github.com/sagikazarmark/goci v0.0.0-20230126155007-bfa6d4cec51f h1:QzdB6iJQXqQXRHYo3lncZo0wK/fzabT5X8EmI8PuqCU=
+github.com/sagikazarmark/goci v0.0.0-20230126155007-bfa6d4cec51f/go.mod h1:DTCF8b8d3FrtQZSlBbH86NXFl3i+qZk/h5SfjEmCskA=
 github.com/sergi/go-diff v1.1.0 h1:we8PVUC3FE2uYfodKH/nBHMSetSfHDR6scGdBi+erh0=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
