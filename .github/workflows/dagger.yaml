@@ -1,0 +1,60 @@
+name: Dagger
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['1.16', '1.17', '1.18', '1.19']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.19'
+
+      - name: Test
+        uses: magefile/mage-action@v2
+        with:
+          version: latest
+          args: -d ci -w . test
+        env:
+          DEBUG: "true"
+          GO_VERSION: ${{ matrix.go }}
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          files: coverage.txt
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.19'
+
+      - name: Test
+        uses: magefile/mage-action@v2
+        with:
+          version: latest
+          args: -d ci -w . lint
+        env:
+          DEBUG: "true"
