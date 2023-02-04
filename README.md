@@ -6,6 +6,20 @@
 
 This repository serves as an example for using [Dagger](https://dagger.io/) Go SDK.
 
+## Usage
+
+Run tests:
+
+```shell
+mage -d ci -w . test
+```
+
+Run linter:
+
+```shell
+mage -d ci -w . lint
+```
+
 ## License
 
 The project is licensed under the [MIT License](LICENSE).
