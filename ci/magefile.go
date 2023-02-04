@@ -11,6 +11,7 @@ import (
 	"dagger.io/dagger"
 
 	"github.com/magefile/mage/mg"
+	"github.com/sagikazarmark/goci/lib/golang"
 )
 
 // Run tests
@@ -27,15 +28,25 @@ func Test(ctx context.Context) error {
 	}
 	defer client.Close()
 
-	c := client.Container().
-		From("golang:1.19.5").
-		WithMountedCache("/root/.cache/go-build", client.CacheVolume("go-build")).
-		WithMountedCache("/go/pkg/mod", client.CacheVolume("go-mod")).
-		WithMountedDirectory("/src", client.Host().Directory(".")).
-		WithWorkdir("/src").
-		WithExec([]string{"go", "test", "-v", "./..."})
+	goVersion := os.Getenv("GO_VERSION")
+	if goVersion == "" {
+		goVersion = "1.19.5"
+	}
+
+	c := golang.Test(
+		client,
+
+		golang.Version(goVersion),
+		golang.CoverMode(golang.AtomicCoverMode),
+		golang.CoverProfile("coverage.txt"),
+	)
 
 	err = process(ctx, c)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.File("/src/coverage.txt").Export(ctx, "coverage.txt")
 	if err != nil {
 		return err
 	}
@@ -57,22 +68,55 @@ func Lint(ctx context.Context) error {
 	}
 	defer client.Close()
 
-	bin := client.Container().
-		From("docker.io/golangci/golangci-lint:v1.51.0").
-		File("/usr/bin/golangci-lint")
+	goVersion := os.Getenv("GO_VERSION")
+	if goVersion == "" {
+		goVersion = "1.19"
+	}
 
-	c := client.Container().
-		From("golang:1.19.5").
-		WithMountedCache("/root/.cache/go-build", client.CacheVolume("go-build")).
-		WithMountedCache("/go/pkg/mod", client.CacheVolume("go-mod")).
-		WithMountedDirectory("/src", client.Host().Directory(".")).
-		WithWorkdir("/src").
-		WithFile("/usr/local/bin/golangci-lint", bin).
-		WithExec([]string{"golangci-lint", "run", "--verbose"})
+	return process(ctx, golang.Lint(
+		client,
 
-	err = process(ctx, c)
+		golang.Version(goVersion),
+		golang.LinterVersion("v1.51.0"),
+	))
+}
+
+// Run all checks
+func Checks(ctx context.Context) error {
+	var clientOpts []dagger.ClientOpt
+
+	if os.Getenv("DEBUG") == "true" {
+		clientOpts = append(clientOpts, dagger.WithLogOutput(os.Stderr))
+	}
+
+	client, err := dagger.Connect(ctx, clientOpts...)
 	if err != nil {
 		return err
+	}
+	defer client.Close()
+
+	goVersions := []string{
+		"1.18",
+		"1.19",
+	}
+
+	var pipelines []*dagger.Container
+
+	for _, goVersion := range goVersions {
+		pipelines = append(pipelines, golang.Test(
+			client,
+
+			golang.Version(goVersion),
+			golang.CoverMode(golang.AtomicCoverMode),
+			golang.CoverProfile("coverage.txt"),
+		))
+	}
+
+	for _, pipeline := range pipelines {
+		err = process(ctx, pipeline)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
