@@ -28,7 +28,7 @@ func Test(ctx context.Context) error {
 	defer client.Close()
 
 	c := client.Container().
-		From("golang:latest").
+		From("golang:1.19.5").
 		WithMountedCache("/root/.cache/go-build", client.CacheVolume("go-build")).
 		WithMountedCache("/go/pkg/mod", client.CacheVolume("go-mod")).
 		WithMountedDirectory("/src", client.Host().Directory(".")).
@@ -58,11 +58,11 @@ func Lint(ctx context.Context) error {
 	defer client.Close()
 
 	bin := client.Container().
-		From("docker.io/golangci/golangci-lint:latest").
+		From("docker.io/golangci/golangci-lint:v1.51.0").
 		File("/usr/bin/golangci-lint")
 
 	c := client.Container().
-		From("golang:latest").
+		From("golang:1.19.5").
 		WithMountedCache("/root/.cache/go-build", client.CacheVolume("go-build")).
 		WithMountedCache("/go/pkg/mod", client.CacheVolume("go-mod")).
 		WithMountedDirectory("/src", client.Host().Directory(".")).
